@@ -237,7 +237,7 @@ def main():
     action_dim = env.action_space.shape[0]
     agent = TD3Agent(state_dim, action_dim)
 
-    num_episodes = 1500
+    num_episodes = 5000
     max_steps = env.max_steps
     batch_size = 64
     start_time = time.time()
@@ -261,8 +261,8 @@ def main():
             )
             start_time = time.time()
 
-    torch.save(agent.actor.state_dict(), "actor_td3.pth")
-    torch.save(agent.critic.state_dict(), "critic_td3.pth")
+    torch.save(agent.actor.state_dict(), "ckpt_td3/0321_1/actor_td3.pth")
+    torch.save(agent.critic.state_dict(), "ckpt_td3/0321_1/critic_td3.pth")
 
 
 if __name__ == "__main__":

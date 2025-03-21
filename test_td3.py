@@ -64,17 +64,18 @@ def plot_results(setpoints, outputs, kp_values, ki_values, kd_values):
 
     plt.tight_layout()
     plt.show()
+    plt.savefig("ckpt_td3/0321_1")
 
 
 if __name__ == "__main__":
     env = PIDEnv()
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.shape[0]
-    agent = DDPGAgent(state_dim, action_dim)
+    agent = TD3Agent(state_dim, action_dim)
 
     # 加载训练好的模型权重
-    agent.actor.load_state_dict(torch.load("ckpt_td3/0321/actor.pth"))
-    agent.critic.load_state_dict(torch.load("ckpt_td3/0321/critic.pth"))
+    agent.actor.load_state_dict(torch.load("ckpt_td3/0321_1/actor_td3.pth"))
+    agent.critic.load_state_dict(torch.load("ckpt_td3/0321_1/critic_td3.pth"))
 
     setpoints, outputs, kp_values, ki_values, kd_values = test_agent(agent, env)
     plot_results(setpoints, outputs, kp_values, ki_values, kd_values)
