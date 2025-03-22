@@ -7,6 +7,7 @@ import torch.optim as optim
 from collections import deque
 import time
 import os
+import argparse
 
 
 # 定义一个用于PID控制的环境，目标切换和突变时刻均带有随机性
@@ -241,8 +242,6 @@ class TD3Agent:
 
 
 def main():
-    import argparse
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--resume", type=str, help="checkpoint name to resume from")
     parser.add_argument(

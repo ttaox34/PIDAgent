@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
 import torch
+import os
+import argparse
+import time
 from rl_td3 import PIDEnv, TD3Agent
 
 
@@ -40,7 +43,9 @@ def test_agent(agent, env, num_episodes=1):
     return all_setpoints, all_outputs, all_kp, all_ki, all_kd
 
 
-def plot_results(setpoints, outputs, kp_values, ki_values, kd_values, ckpt_name):
+def plot_results(
+    setpoints, outputs, kp_values, ki_values, kd_values, ckpt_name, episode
+):
     plt.figure(figsize=(15, 10))
 
     plt.subplot(2, 1, 1)
@@ -61,13 +66,17 @@ def plot_results(setpoints, outputs, kp_values, ki_values, kd_values, ckpt_name)
     plt.ylabel("PID Parameters")
     plt.title("PID Parameters over Time")
     plt.legend()
-
     plt.tight_layout()
-    plt.show()
-    plt.savefig(f"ckpt_td3/{ckpt_name}/test")
+
+    timestamp = time.strftime("%m%d-%H%M%S")
+    plt.savefig(f"ckpt_td3/{ckpt_name}/test_{episode}_{timestamp}.png")
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ckpt", type=str, help="checkpoint name")
+    args = parser.parse_args()
+
     env = PIDEnv()
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.shape[0]
@@ -75,9 +84,23 @@ if __name__ == "__main__":
 
     ckpt_name = "0321_2"
 
+    latest_episode = max(
+        [
+            int(f.split("_")[-1].split(".")[0])
+            for f in os.listdir(f"ckpt_td3/{ckpt_name}")
+            if f.startswith("actor_td3")
+        ]
+    )
+
     # 加载训练好的模型权重
-    agent.actor.load_state_dict(torch.load("ckpt_td3/0321_2/actor_td3.pth"))
-    agent.critic.load_state_dict(torch.load("ckpt_td3/0321_2/critic_td3.pth"))
+    agent.actor.load_state_dict(
+        torch.load(f"ckpt_td3/{ckpt_name}/actor_td3_{latest_episode}.pth")
+    )
+    agent.critic.load_state_dict(
+        torch.load(f"ckpt_td3/{ckpt_name}/critic_td3_{latest_episode}.pth")
+    )
 
     setpoints, outputs, kp_values, ki_values, kd_values = test_agent(agent, env)
-    plot_results(setpoints, outputs, kp_values, ki_values, kd_values, ckpt_name)
+    plot_results(
+        setpoints, outputs, kp_values, ki_values, kd_values, ckpt_name, latest_episode
+    )
