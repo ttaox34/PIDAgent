@@ -29,7 +29,6 @@ class PIDEnv(gym.Env):
 
     def reset(self):
         self.step_count = 0
-        self.x = 0.0  # 系统初始值
 
         # 为 target1、target2 以及突变时刻添加随机性
         self.target1 = random.uniform(-1.0, 1.0)
@@ -38,6 +37,7 @@ class PIDEnv(gym.Env):
         )
         self.change_step = random.randint(30, 70)
         self.setpoint = self.target1
+        self.x = self.setpoint  # 初始测量值
 
         self.integral = 0.0
         self.prev_error = self.setpoint - self.x
@@ -243,6 +243,7 @@ class TD3Agent:
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--ckpt", type=str, help="checkpoint name")
     parser.add_argument("--resume", type=str, help="checkpoint name to resume from")
     parser.add_argument(
         "--episodes", type=int, default=15000, help="number of episodes"
@@ -256,7 +257,7 @@ def main():
 
     # 如果指定了resume参数,从checkpoint恢复
     start_episode = 0
-    ckpt_name = "0321_2"
+    ckpt_name = args.ckpt
     if args.resume:
         ckpt_name = args.resume
         ckpt_dir = f"ckpt_td3/{ckpt_name}"
