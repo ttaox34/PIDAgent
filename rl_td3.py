@@ -231,19 +231,59 @@ class TD3Agent:
                     target_param.data * (1.0 - self.tau) + param.data * self.tau
                 )
 
+    def load_model(self, actor_path, critic_path):
+        """加载预训练的模型"""
+        self.actor.load_state_dict(torch.load(actor_path))
+        self.actor_target.load_state_dict(torch.load(actor_path))
+        self.critic.load_state_dict(torch.load(critic_path))
+        self.critic_target.load_state_dict(torch.load(critic_path))
+        print(f"Loaded models from {actor_path} and {critic_path}")
+
 
 def main():
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--resume", type=str, help="checkpoint name to resume from")
+    parser.add_argument(
+        "--episodes", type=int, default=15000, help="number of episodes"
+    )
+    args = parser.parse_args()
+
     env = PIDEnv()
     state_dim = env.observation_space.shape[0]
     action_dim = env.action_space.shape[0]
     agent = TD3Agent(state_dim, action_dim)
 
-    num_episodes = 15000
+    # 如果指定了resume参数,从checkpoint恢复
+    start_episode = 0
+    ckpt_name = "0321_2"
+    if args.resume:
+        ckpt_name = args.resume
+        ckpt_dir = f"ckpt_td3/{ckpt_name}"
+        if os.path.exists(ckpt_dir):
+            latest_episode = max(
+                [
+                    int(f.split("_")[-1].split(".")[0])
+                    for f in os.listdir(ckpt_dir)
+                    if f.startswith("actor_td3")
+                ]
+            )
+            agent.load_model(
+                f"{ckpt_dir}/actor_td3_{latest_episode}.pth",
+                f"{ckpt_dir}/critic_td3_{latest_episode}.pth",
+            )
+            start_episode = latest_episode
+            print(f"Resuming from episode {start_episode}")
+        else:
+            print(f"Checkpoint directory {ckpt_dir} not found, starting from scratch")
+
+    num_episodes = args.episodes
     max_steps = env.max_steps
     batch_size = 64
     start_time = time.time()
 
-    for episode in range(num_episodes):
+    for episode in range(start_episode, num_episodes):
         state = env.reset()
         episode_reward = 0
         for step in range(max_steps):
@@ -263,12 +303,12 @@ def main():
             start_time = time.time()
 
     # Create checkpoint directory if it doesn't exist
-    ckpt_name = "0321_2"
     ckpt_dir = f"ckpt_td3/{ckpt_name}"
     os.makedirs(ckpt_dir, exist_ok=True)
 
-    torch.save(agent.actor.state_dict(), f"{ckpt_dir}/actor_td3.pth")
-    torch.save(agent.critic.state_dict(), f"{ckpt_dir}/critic_td3.pth")
+    torch.save(agent.actor.state_dict(), f"{ckpt_dir}/actor_td3_{num_episodes}.pth")
+    torch.save(agent.critic.state_dict(), f"{ckpt_dir}/critic_td3_{num_episodes}.pth")
+
 
 if __name__ == "__main__":
     main()
