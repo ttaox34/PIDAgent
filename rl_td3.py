@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.optim as optim
 from collections import deque
 import time
+import os
 
 
 # 定义一个用于PID控制的环境，目标切换和突变时刻均带有随机性
@@ -237,7 +238,7 @@ def main():
     action_dim = env.action_space.shape[0]
     agent = TD3Agent(state_dim, action_dim)
 
-    num_episodes = 5000
+    num_episodes = 15000
     max_steps = env.max_steps
     batch_size = 64
     start_time = time.time()
@@ -261,9 +262,13 @@ def main():
             )
             start_time = time.time()
 
-    torch.save(agent.actor.state_dict(), "ckpt_td3/0321_1/actor_td3.pth")
-    torch.save(agent.critic.state_dict(), "ckpt_td3/0321_1/critic_td3.pth")
+    # Create checkpoint directory if it doesn't exist
+    ckpt_name = "0321_2"
+    ckpt_dir = f"ckpt_td3/{ckpt_name}"
+    os.makedirs(ckpt_dir, exist_ok=True)
 
+    torch.save(agent.actor.state_dict(), f"{ckpt_dir}/actor_td3.pth")
+    torch.save(agent.critic.state_dict(), f"{ckpt_dir}/critic_td3.pth")
 
 if __name__ == "__main__":
     main()
