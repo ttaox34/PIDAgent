@@ -82,7 +82,7 @@ if __name__ == "__main__":
     action_dim = env.action_space.shape[0]
     agent = TD3Agent(state_dim, action_dim)
 
-    ckpt_name = "0321_2"
+    ckpt_name = args.ckpt
 
     latest_episode = max(
         [
