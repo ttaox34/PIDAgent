@@ -235,7 +235,7 @@ def main():
     torch.save(agent.actor.state_dict(), "actor.pth")
     torch.save(agent.critic.state_dict(), "critic.pth")
 
-    # 绘制reward曲线
+    # 绘制reward曲线 俞皓然
     plt.plot(rewards)
     plt.xlabel("Episode")
     plt.ylabel("Reward")
@@ -246,3 +246,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
