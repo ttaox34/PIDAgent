@@ -235,7 +235,7 @@ def main():
     torch.save(agent.actor.state_dict(), "actor.pth")
     torch.save(agent.critic.state_dict(), "critic.pth")
 
-    # 绘制reward曲线 俞皓然
+    # 绘制reward曲线 yhr
     plt.plot(rewards)
     plt.xlabel("Episode")
     plt.ylabel("Reward")
