@@ -20,7 +20,7 @@ class PIDEnv(gym.Env):
         )
         # 动作：PID参数的调整量 [dKp, dKi, dKd]，范围为 -1 到 1
         self.action_space = gym.spaces.Box(
-            low=-1.0, high=1.0, shape=(3,), dtype=np.float32
+            low=-5.0, high=5.0, shape=(3,), dtype=np.float32
         )
         self.dt = 0.1  # 时间步长
         self.tau = 1.0  # 系统时间常数
